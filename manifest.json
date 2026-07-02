@@ -1,11 +1,11 @@
 {
   "name": "MB WorkStation",
-  "short_name": "MBWork",
-  "description": "MB WorkStation - Project and Task Management",
-  "start_url": "/",
+  "short_name": "MBWorkStation",
+  "start_url": "/MB-WorkStation/",
+  "scope": "/MB-WorkStation/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0057b7",
+  "theme_color": "#3b82f6",
   "icons": [
     {
       "src": "icon-192.png",

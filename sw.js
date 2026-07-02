@@ -2,15 +2,15 @@
 // SERVICE WORKER — sw.js
 // MB WorkStation PWA
 // =========================
-var CACHE_NAME = "mbworkstation-v2";
+var CACHE_NAME = "mbworkstation-v3";
 var ASSETS = [
-  "/",
-  "/index.html",
-  "/styles.css",
-  "/app.js",
-  "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png",
+  "/mbworkstation/",
+  "/mbworkstation/index.html",
+  "/mbworkstation/styles.css",
+  "/mbworkstation/app.js",
+  "/mbworkstation/manifest.json",
+  "/mbworkstation/icon-192.png",
+  "/mbworkstation/icon-512.png",
   "https://unpkg.com/dexie@3/dist/dexie.js",
   "https://cdn.jsdelivr.net/npm/chart.js"
 ];
