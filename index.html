@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>MB WorkStation</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="dexie.js"></script>
+  <script src="chart.js"></script>
+</headaddd
+<body class="light-mode">
+
+<!-- ============================================================
+     LOGIN SCREEN
+     ============================================================ -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🔧</div>
+    <h1 class="login-title">MB WorkStation</h1>
+    <p class="login-subtitle">Sign in to your workspace</p>
+
+    <!-- Login Form -->
+    <div id="login-form">
+      <h2 style="margin-bottom:1rem;">Sign In</h2>
+      <div id="login-error" class="login-error hidden"></div>
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="Enter your username" />
+      </div>
+      <div class="login-field">
+        <label>PIN</label>
+        <input type="password" id="login-pin" placeholder="Enter 4-6 digit PIN" />
+      </div>
+      <button class="login-btn" id="login-btn">Sign In</button>
+      <p class="login-switch">
+        Don't have an account?
+        <span class="login-link" id="show-register">Create one</span>
+      </p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" class="hidden">
+      <h2 style="margin-bottom:1rem;">Create Account</h2>
+      <div id="register-error" class="login-error hidden"></div>
+      <div class="login-field">
+        <label>Full Name</label>
+        <input type="text" id="register-name" placeholder="Enter your full name" />
+      </div>
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="register-username" placeholder="Choose a username" />
+      </div>
+      <div class="login-field">
+        <label>PIN</label>
+        <input type="password" id="register-pin" placeholder="Choose a 4-6 digit PIN" />
+      </div>
+      <div class="login-field">
+        <label>Confirm PIN</label>
+        <input type="password" id="register-pin-confirm" placeholder="Confirm your PIN" />
+      </div>
+      <button class="login-btn" id="register-btn">Create Account</button>
+      <p class="login-switch">
+        Already have an account?
+        <span class="login-link" id="show-login">Sign in</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PWA INSTALL BANNER
+     ============================================================ -->
+<div id="pwa-install-banner" class="pwa-banner hidden">
+  <span>📲 Install MB WorkStation as an app!</span>
+  <button class="btn btn-primary btn-sm" id="pwa-install-btn">Install</button>
+  <button class="btn btn-secondary btn-sm" id="pwa-install-dismiss">Dismiss</button>
+</div>
+
+<!-- ============================================================
+     APP SHELL
+     ============================================================ -->
+<div id="app-shell" class="app-shell" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1>🔧 MB WorkStation</h1>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-link" data-section="scheduler">     
+        <span class="nav-icon">📅</span> Scheduler
+      </a>
+      <a class="nav-link active" data-section="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a class="nav-link" data-section="projects">
+        <span class="nav-icon">📁</span> Projects
+      </a>
+      <a class="nav-link" data-section="tasks">
+        <span class="nav-icon">✅</span> Tasks
+      </a>
+      <a class="nav-link" data-section="assets">
+        <span class="nav-icon">🏭</span> Assets
+      </a>
+      <a class="nav-link" data-section="reports">
+        <span class="nav-icon">📋</span> Reports
+      </a>
+      <a class="nav-link" data-section="settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+
+    <!-- TOP NAV -->
+    <header class="top-nav">
+      <button class="btn-icon" id="mobile-menu-btn">☰</button>
+      <div class="nav-right">
+        <button class="btn btn-secondary btn-sm" id="theme-toggle">
+          <span class="icon">🌙</span>
+          <span class="label">Dark Mode</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">
+          🚪 Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="main-content">
+
+      <!-- ======================================================
+           DASHBOARD
+           ====================================================== -->
+      <div id="dashboard" class="section active">
+        <div class="section-header">
+          <h2>📊 Dashboard</h2>
+        </div>
+        <p id="welcome-greeting" class="welcome-greeting"></p>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-projects">0</div>
+              <div class="stat-label">Projects</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-tasks">0</div>
+              <div class="stat-label">Total Tasks</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔄</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-inprogress">0</div>
+              <div class="stat-label">In Progress</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-overdue">0</div>
+              <div class="stat-label">Overdue</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Tasks by Status</h3>
+            <canvas id="chart-status"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Tasks by Project</h3>
+            <canvas id="chart-projects"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           PROJECTS
+           ====================================================== -->
+      <div id="projects" class="section">
+        <div class="section-header">
+          <h2>📁 Projects</h2>
+          <button class="btn btn-primary" id="add-project-btn">+ Add Project</button>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="projects-search"
+                 placeholder="🔍 Search projects..." class="filter-input" />
+          <select id="projects-filter-status" class="filter-select">
+            <option value="">All Statuses</option>
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>On Hold</option>
+            <option>Completed</option>
+          </select>
+          <select id="projects-filter-priority" class="filter-select">
+            <option value="">All Priorities</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table" id="projects-table">
+            <thead>
+              <tr>
+                <th data-sort="title">Project ↕</th>
+                <th data-sort="status">Status ↕</th>
+                <th data-sort="priority">Priority ↕</th>
+                <th data-sort="dueDate">Due Date ↕</th>
+                <th>Tasks</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="projects-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           TASKS
+           ====================================================== -->
+      <div id="tasks" class="section">
+        <div class="section-header">
+          <h2>✅ Tasks</h2>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" id="tasks-view-table">📋 Table</button>
+            <button class="btn btn-secondary btn-sm" id="tasks-view-kanban">🗂 Kanban</button>
+            <button class="btn btn-primary" id="add-task-btn">+ Add Task</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="tasks-search"
+                 placeholder="🔍 Search tasks..." class="filter-input" />
+          <select id="tasks-filter-project" class="filter-select">
+            <option value="">All Projects</option>
+          </select>
+          <select id="tasks-filter-status" class="filter-select">
+            <option value="">All Statuses</option>
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>On Hold</option>
+            <option>Completed</option>
+          </select>
+          <select id="tasks-filter-priority" class="filter-select">
+            <option value="">All Priorities</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+          <select id="tasks-filter-line" class="filter-select">
+            <option value="">All lines</option>
+          </select>
+          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.875rem;">
+            <input type="checkbox" id="tasks-hide-completed" /> Hide Completed
+          </label>
+        </div>
+
+        <!-- Table View -->
+        <div id="tasks-table-view">
+          <div class="table-wrapper">
+            <table class="data-table" id="tasks-table">
+              <thead>
+  		<tr>
+    		  <th data-sort="title">Title ↕</th>
+    		  <th data-sort="status">Status ↕</th>
+    	  	  <th data-sort="priority">Priority ↕</th>
+    		  <th data-sort="line">Line ↕</th>
+    		  <th data-sort="assetNumber">Asset # ↕</th>
+    		  <th data-sort="assetName">Asset Name ↕</th>
+    		  <th data-sort="startDate">Start Date ↕</th>
+    		  <th data-sort="dueDate">Due Date ↕</th>
+    		  <th data-sort="projectId">Project ↕</th>
+    		  <th>Assigned</th>
+    		  <th>Actions</th>
+  		</tr>
+	      </thead>
+              <tbody id="tasks-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Kanban View -->
+        <div id="tasks-kanban-view" style="display:none;">
+          <div class="kanban-board">
+            <div class="kanban-column">
+              <div class="kanban-column-header">🔲 Not Started</div>
+              <div id="kanban-not-started" data-status="Not Started"></div>
+            </div>
+            <div class="kanban-column">
+              <div class="kanban-column-header">🔄 In Progress</div>
+              <div id="kanban-in-progress" data-status="In Progress"></div>
+            </div>
+            <div class="kanban-column">
+              <div class="kanban-column-header">⏸ On Hold</div>
+              <div id="kanban-on-hold" data-status="On Hold"></div>
+            </div>
+            <div class="kanban-column">
+              <div class="kanban-column-header">✅ Completed</div>
+              <div id="kanban-completed" data-status="Completed"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           ASSETS
+           ====================================================== -->
+      <div id="assets" class="section">
+        <div class="section-header">
+          <h2>🏭 Assets</h2>
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="filter-bar">
+          <input type="text" id="assets-search"
+                 placeholder="🔍 Search assets..." class="filter-input" />
+          <select id="assets-filter-building" class="filter-select">
+            <option value="">All Buildings</option>
+          </select>
+          <select id="assets-filter-line" class="filter-select">
+            <option value="">All Lines</option>
+          </select>
+        </div>
+
+        <!-- Column Toggles -->
+        <div class="column-toggles-bar">
+          <span class="toggles-label">Show Columns:</span>
+          <label class="toggle-pill">
+            <input type="checkbox" id="col-toggle-plcMake" /> PLC Name
+          </label>
+          <label class="toggle-pill">
+            <input type="checkbox" id="col-toggle-splcMake" /> SPLC Name
+          </label>
+          <label class="toggle-pill">
+            <input type="checkbox" id="col-toggle-plcIp" /> PLC IP
+          </label>
+          <label class="toggle-pill">
+            <input type="checkbox" id="col-toggle-splcIp" /> SPLC IP
+          </label>
+          <label class="toggle-pill">
+            <input type="checkbox" id="col-toggle-opDesc" /> OP Description
+          </label>
+        </div>
+
+        <!-- Assets Table -->
+        <div class="table-wrapper">
+          <table class="data-table" id="assets-table">
+            <thead>
+              <tr id="assets-table-header">
+                <th data-sort="assetNumber">Asset # ↕</th>
+                <th data-sort="assetName">Asset Name ↕</th>
+                <th data-sort="opNumber">OP # ↕</th>
+                <th data-sort="opDescription" class="col-opDesc">OP Description ↕</th>
+                <th data-sort="building">Building ↕</th>
+                <th data-sort="line">Line ↕</th>
+                <th data-sort="vendor">Vendor ↕</th>
+                <th data-sort="plcMake" class="col-plcMake">PLC Name ↕</th>
+                <th data-sort="splcMake" class="col-splcMake">SPLC Name ↕</th>
+                <th data-sort="plcIp" class="col-plcIp">PLC IP ↕</th>
+                <th data-sort="splcIp" class="col-splcIp">SPLC IP ↕</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="assets-table-body"></tbody>
+          </table>
+        </div>
+
+      </div>
+      
+      <!-- ========================= -->
+      <!-- SCHEDULER SECTION         -->
+      <!-- ========================= -->
+      <div id="scheduler" class="section">
+        <div class="section-header">
+          <h2>📅 Scheduler</h2>
+          <button class="btn btn-primary" id="add-event-btn">➕ Add Event</button>
+        </div>
+
+        <!-- Toolbar: View switcher + Filter -->
+        <div class="scheduler-toolbar">
+          <div class="view-toggle-group">
+            <button class="btn btn-secondary active-view" id="cal-view-month">Monthly</button>
+            <button class="btn btn-secondary" id="cal-view-week">Weekly</button>
+            <button class="btn btn-secondary" id="cal-view-day">Daily</button>
+          </div>
+          <div class="scheduler-filters">
+            <select id="cal-filter-type" class="filter-select">
+              <option value="">All Entry Types</option>
+              <option value="Scheduled Work">Scheduled Work</option>
+              <option value="Meeting">Meeting</option>
+              <option value="Personal">Personal</option>
+              <option value="Training">Training</option>
+              <option value="My Schedule">My Schedule</option>
+            </select>
+          </div>
+          <div class="cal-nav">
+            <button class="btn btn-secondary" id="cal-prev">◀</button>
+            <span id="cal-title" class="cal-title-label"></span>
+            <button class="btn btn-secondary" id="cal-next">▶</button>
+            <button class="btn btn-secondary" id="cal-today">Today</button>
+          </div>
+        </div>
+
+        <!-- Calendar Views -->
+        <div id="cal-month-view" class="cal-view-panel">
+          <div class="cal-month-grid" id="cal-month-grid"></div>
+        </div>
+
+        <div id="cal-week-view" class="cal-view-panel" style="display:none;">
+          <div class="cal-week-grid" id="cal-week-grid"></div>
+        </div>
+
+        <div id="cal-day-view" class="cal-view-panel" style="display:none;">
+          <div class="cal-day-container" id="cal-day-container"></div>
+        </div>
+      </div>
+
+      <!-- DAY DETAIL MODAL -->
+      <div id="day-detail-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width:540px;">
+          <div class="modal-header">
+            <h3 id="day-detail-title">Events & Tasks</h3>
+            <button class="modal-close-btn" id="day-detail-close">✕</button>
+          </div>
+          <div class="modal-body">
+            <div id="day-detail-events"></div>
+            <div id="day-detail-tasks"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ADD / EDIT EVENT MODAL -->
+      <div id="event-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width:580px;">
+          <div class="modal-header">
+            <h3 id="event-modal-title">Add Event</h3>
+            <button class="modal-close-btn" id="event-modal-close">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-grid-2">
+              <div class="form-group" style="grid-column:1/-1;">
+                <label>Event Name <span class="required">*</span></label>
+                <input type="text" id="event-name" class="form-input"
+                       placeholder="e.g. PLC Maintenance">
+              </div>
+              <div class="form-group">
+                <label>Start Date <span class="required">*</span></label>
+                <input type="date" id="event-start-date" class="form-input">
+              </div>
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="event-end-date" class="form-input">
+              </div>
+              <div class="form-group">
+                <label>Start Time</label>
+                <input type="time" id="event-start-time" class="form-input">
+              </div>
+              <div class="form-group">
+                <label>End Time</label>
+                <input type="time" id="event-end-time" class="form-input">
+              </div>
+              <div class="form-group" style="grid-column:1/-1;">
+                <label>Location</label>
+                <input type="text" id="event-location" class="form-input"
+                      placeholder="e.g. Building A, Room 101">
+              </div>
+              <div class="form-group" style="grid-column:1/-1;">
+                <label>Entry Type</label>
+                <select id="event-type" class="form-input">
+                  <option value="Scheduled Work">Scheduled Work</option>
+                  <option value="Meeting">Meeting</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Training">Training</option>
+                  <option value="My Schedule">My Schedule</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column:1/-1;">
+                <label>Notes</label>
+                <textarea id="event-notes" class="form-input" rows="3"
+                          placeholder="Additional details..."></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="event-modal-cancel">Cancel</button>
+            <button class="btn btn-primary"   id="event-modal-save">💾 Save Event</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           REPORTS
+           ====================================================== -->
+      <div id="reports" class="section">
+        <div class="section-header">
+          <h2>📋 Reports</h2>
+        </div>
+        <div class="report-buttons">
+          <button class="btn btn-primary" id="generateProjectReport">
+            📁 Project Report
+          </button>
+          <button class="btn btn-primary" id="generateTaskReport">
+            ✅ Task Report
+          </button>
+          <button class="btn btn-secondary" id="printReport">
+            🖨️ Print
+          </button>
+        </div>
+        <div id="reportOutput" class="report-output"></div>
+      </div>
+
+      <!-- ======================================================
+           SETTINGS
+           ====================================================== -->
+      <div id="settings" class="section">
+        <div class="section-header">
+          <h2>⚙️ Settings</h2>
+        </div>
+
+        <div class="settings-grid">
+
+          <!-- Profile -->
+          <div class="card">
+            <h3>👤 Profile</h3>
+            <div class="form-group" style="margin-top:1rem;">
+              <label>Display Name</label>
+              <input type="text" id="settings-username" placeholder="Your name" />
+            </div>
+            <button class="btn btn-primary"
+                    style="margin-top:0.75rem;" id="save-username-btn">
+              💾 Save Name
+            </button>
+          </div>
+
+          <!-- Members -->
+          <div class="card">
+            <h3>👥 Team Members</h3>
+            <div class="form-grid-2" style="margin-top:1rem;">
+              <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="member-name" placeholder="Member name" />
+              </div>
+              <div class="form-group">
+                <label>Group</label>
+                <input type="text" id="member-group" placeholder="e.g. Electrical" />
+              </div>
+            </div>
+            <button class="btn btn-primary"
+                    style="margin-top:0.75rem;" id="add-member-btn">
+              + Add Member
+            </button>
+            <div id="members-list" style="margin-top:1rem;"></div>
+          </div>
+
+          <!-- Contractors -->
+          <div class="card">
+            <h3>🏗️ Contractors</h3>
+            <div class="form-grid-3" style="margin-top:1rem;">
+              <div class="form-group">
+                <label>Name *</label>
+                <input type="text" id="contractor-name" placeholder="Contractor name" />
+              </div>
+              <div class="form-group">
+                <label>Company</label>
+                <input type="text" id="contractor-company" placeholder="Company" />
+              </div>
+              <div class="form-group">
+                <label>Trade</label>
+                <input type="text" id="contractor-trade" placeholder="e.g. Electrical" />
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="text" id="contractor-phone" placeholder="Phone number" />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="text" id="contractor-email" placeholder="Email address" />
+              </div>
+            </div>
+            <button class="btn btn-primary"
+                    style="margin-top:0.75rem;" id="add-contractor-btn">
+              + Add Contractor
+            </button>
+            <div id="contractors-list" style="margin-top:1rem;"></div>
+          </div>
+
+          <!-- Data Management -->
+          <div class="card">
+            <h3>💾 Data Management</h3>
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
+              <button class="btn btn-primary" id="export-data-btn">
+                📤 Export Backup
+              </button>
+              <button class="btn btn-secondary" id="import-data-btn">
+                📥 Import Backup
+              </button>
+              <input type="file" id="import-file"
+                     accept=".json" style="display:none;" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     PROJECT MODAL
+     ============================================================ -->
+<div id="project-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="project-modal-title">Add Project</h2>
+      <button class="modal-close-btn" id="project-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Project Name *</label>
+        <input type="text" id="proj-name" placeholder="Enter project name" />
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>Description</label>
+        <textarea id="proj-desc" rows="3"
+                  placeholder="Enter description"></textarea>
+      </div>
+      <div class="form-grid-2" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="proj-start-date" />
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="proj-due-date" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="proj-status">
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>On Hold</option>
+            <option>Completed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="proj-priority">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>Notes</label>
+        <textarea id="proj-notes" rows="3" placeholder="Additional notes"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="project-modal-save">💾 Save</button>
+      <button class="btn btn-secondary" id="project-modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE PROJECT MODAL -->
+<div id="delete-project-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <h2>Delete Project</h2>
+      <button class="modal-close-btn" id="delete-project-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete
+        <strong id="delete-project-name"></strong>?
+      </p>
+      <p style="color:var(--danger);margin-top:0.5rem;font-size:0.875rem;">
+        ⚠️ All tasks linked to this project will also be deleted.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="delete-project-confirm">🗑️ Delete</button>
+      <button class="btn btn-secondary" id="delete-project-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TASK MODAL
+     ============================================================ -->
+<div id="task-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <h2 id="task-modal-title">Add Task</h2>
+      <button class="modal-close-btn" id="task-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Task Title *</label>
+        <input type="text" id="task-title" placeholder="Enter task title" />
+      </div>
+      <div class="form-grid-2" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>Project</label>
+          <select id="task-project"></select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="task-status">
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>On Hold</option>
+            <option>Completed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="task-priority">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Building</label>
+          <input type="text" id="task-building" placeholder="e.g. Building A" />
+        </div>
+        <div class="form-group">
+          <label>Line</label>
+          <input type="text" id="task-line" placeholder="e.g. Line 1" />
+        </div>
+        <div class="form-group">
+          <label>Asset Number</label>
+          <input type="text" id="task-asset-number" placeholder="e.g. AST-001" />
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="task-start-date" />
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="task-due-date" />
+        </div>
+        <div class="form-group">
+          <label>PLC Make</label>
+          <input type="text" id="task-plc-make" placeholder="e.g. ControlLogix" />
+        </div>
+        <div class="form-group">
+          <label>PLC IP</label>
+          <input type="text" id="task-plc-ip" placeholder="e.g. 192.168.1.1" />
+        </div>
+        <div class="form-group">
+          <label>SPLC Make</label>
+          <input type="text" id="task-splc-make" placeholder="e.g. CompactLogix" />
+        </div>
+        <div class="form-group">
+          <label>SPLC IP</label>
+          <input type="text" id="task-splc-ip" placeholder="e.g. 192.168.1.2" />
+        </div>
+        <div class="form-group">
+          <label>Contractor</label>
+          <select id="task-contractor"></select>
+        </div>
+      </div>
+
+      <!-- Assigned Members -->
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>Assigned Members</label>
+        <div id="task-members-list" class="members-checklist"></div>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>Notes</label>
+        <textarea id="task-notes" rows="3"
+                  placeholder="Additional notes"></textarea>
+      </div>
+
+      <!-- Comments Section (edit mode only) -->
+      <div id="task-comments-section" style="display:none;margin-top:1rem;">
+        <h4 style="margin-bottom:0.5rem;">💬 Comments</h4>
+        <div id="task-comments-list"></div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <input type="text" id="task-comment-input"
+                 placeholder="Add a comment..." style="flex:1;" />
+          <button class="btn btn-primary btn-sm"
+                  id="task-comment-submit">Post</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="task-modal-save">💾 Save</button>
+      <button class="btn btn-secondary" id="task-modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE TASK MODAL -->
+<div id="delete-task-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <h2>Delete Task</h2>
+      <button class="modal-close-btn" id="delete-task-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete
+        <strong id="delete-task-name"></strong>?
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="delete-task-confirm">🗑️ Delete</button>
+      <button class="btn btn-secondary" id="delete-task-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ASSET DETAIL MODAL
+     ============================================================ -->
+<div id="asset-detail-modal" class="modal-overlay hidden">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <h2 id="asset-modal-title">Asset Details</h2>
+      <button class="modal-close-btn" id="asset-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="asset-detail-grid">
+        <div class="form-group">
+          <label>Asset Number</label>
+          <input type="text" id="ad-asset-number" />
+        </div>
+        <div class="form-group">
+          <label>Asset Name</label>
+          <input type="text" id="ad-asset-name" />
+        </div>
+        <div class="form-group">
+          <label>OP #</label>
+          <input type="text" id="ad-op-number" />
+        </div>
+        <div class="form-group">
+          <label>OP Description</label>
+          <input type="text" id="ad-op-description" />
+        </div>
+        <div class="form-group">
+          <label>Building</label>
+          <input type="text" id="ad-building" />
+        </div>
+        <div class="form-group">
+          <label>Line</label>
+          <input type="text" id="ad-line" />
+        </div>
+        <div class="form-group">
+          <label>Vendor</label>
+          <input type="text" id="ad-vendor" />
+        </div>
+        <div class="form-group">
+          <label>PLC Make</label>
+          <input type="text" id="ad-plc-make" />
+        </div>
+        <div class="form-group">
+          <label>SPLC Make</label>
+          <input type="text" id="ad-splc-make" />
+        </div>
+        <div class="form-group">
+          <label>PLC IP</label>
+          <input type="text" id="ad-plc-ip" />
+        </div>
+        <div class="form-group">
+          <label>SPLC IP</label>
+          <input type="text" id="ad-splc-ip" />
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:1.25rem;">
+        <label>Notes</label>
+        <textarea id="ad-notes" rows="5"
+                  placeholder="Add notes about this asset..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="asset-modal-save">💾 Save Changes</button>
+      <button class="btn btn-secondary" id="asset-modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT COMMENTS MODAL -->
+<div id="project-comments-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="project-comments-title">Project Comments</h2>
+      <button class="modal-close-btn" id="project-close-comments-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="project-comments-list"></div>
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+        <input type="text" id="project-comment-input"
+               placeholder="Add a comment..." style="flex:1;" />
+        <button class="btn btn-primary btn-sm"
+                id="project-add-comment-btn">Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
